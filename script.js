@@ -17,7 +17,7 @@ function prosesSubstitusi() {
     try {
         // --- SISTEM FORMATTING AMAN (SANITASI INPUT) ---
         
-        // 1. Bersihkan spasi berlebih agar pemrosesan string seragam
+        // 1. Bersihkan semua spasi berlebih
         let inputF = rawF.replace(/\s+/g, '');
         let inputU = rawU.replace(/\s+/g, '');
 
@@ -25,22 +25,22 @@ function prosesSubstitusi() {
         inputF = inputF.replace(/\*\*/g, '^');
         inputU = inputU.replace(/\*\*/g, '^');
 
-        // 3. Tambahkan '*' otomatis untuk angka di depan x (Contoh: 2x -> 2*x)
+        // 3. Sederhanakan kurung bungkus pada variabel tunggal berpangkat, misal: (x^3) -> x^3
+        // Menggunakan pencocokan karakter non-kurung yang lebih aman
+        inputF = inputF.replace(/\((x\^\d+)\)/g, "$1");
+        inputU = inputU.replace(/\((x\^\d+)\)/g, "$1");
+
+        // 4. Tambahkan '*' otomatis untuk angka menempel di depan x (Contoh: 2x -> 2*x)
         inputF = inputF.replace(/(\d+)(x)/g, '$1*$2');
         inputU = inputU.replace(/(\d+)(x)/g, '$1*$2');
 
-        // 4. PERBAIKAN UTAMA: Tambahkan '*' otomatis untuk angka di depan kurung buka (Contoh: 2(x^3) -> 2*(x^3))
+        // 5. Tambahkan '*' otomatis untuk angka di depan kurung buka (Contoh: 2(x^3) -> 2*(x^3))
         inputF = inputF.replace(/(\d+)\(/g, '$1*(');
         inputU = inputU.replace(/(\d+)\(/g, '$1*(');
 
-        // 5. PERBAIKAN UTAMA: Tambahkan '*' otomatis di antara x dan kurung (Contoh: x(x+1) -> x*(x+1))
+        // 6. Tambahkan '*' otomatis di antara x dan kurung (Contoh: x(x+1) -> x*(x+1))
         inputF = inputF.replace(/x\(/g, 'x*(');
         inputU = inputU.replace(/x\(/g, 'x*(');
-
-        // 6. Bersihkan kurung tunggal yang tidak perlu pada variabel berpangkat (Contoh: (x^3) -> x^3)
-        // Ini mencegah Algebrite bingung dengan kurung pembungkus redundan
-        inputF = inputF.replace(/\((x\^\d+)\)/g, '$1');
-        inputU = inputU.replace(/\((x\^\d+)\)/g, '$1');
 
         // --- PROSES INTEGRAL ---
         
@@ -78,7 +78,8 @@ function prosesSubstitusi() {
         }
 
     } catch (error) {
-        showError("Terjadi kesalahan format penulisan matematika. Pastikan aturan pengetikan benar (gunakan '*' untuk perkalian dan '^' untuk pangkat).");
+        // PERBAIKAN: Menampilkan pesan kesalahan riil dari sistem/Algebrite agar mudah dilacak
+        showError("Pesan Sistem: " + error.message + ". Periksa kembali format penulisan matematika Anda.");
         console.error(error);
     }
 }
