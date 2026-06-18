@@ -5,7 +5,7 @@ function prosesSubstitusi() {
     const resultContainer = document.getElementById('result-container');
     const errorContainer = document.getElementById('error-container');
 
-    // Reset Tampilan
+    // Reset Tampilan awal
     resultContainer.style.display = 'none';
     errorContainer.style.display = 'none';
 
@@ -15,64 +15,51 @@ function prosesSubstitusi() {
     }
 
     try {
-        // --- SISTEM PENYARING ERROR OTOMATIS (ANTI-GLITCH) ---
-        
-        // 1. Jika ada kurung yang langsung diikuti angka, ubah jadi pangkat. Contoh: (x+1)3 menjadi (x+1)^3
-        rawF = rawF.replace(/\)(\d+)/g, ')^$1');
-        rawU = rawU.replace(/\)(\d+)/g, ')^$1');
-
-        // 2. Jika ada x diikuti angka tanpa pangkat, ubah jadi pangkat. Contoh: x2 menjadi x^2
-        rawF = rawF.replace(/x(\d+)/g, 'x^$1');
-        rawU = rawU.replace(/x(\d+)/g, 'x^$1');
-
-        // 3. Ubah pangkat dua bintang (**) khas Python menjadi caping (^) khas Algebrite
+        // --- SISTEM FORMATTING AMAN ---
+        // 1. Ubah format pangkat Python (**) menjadi format Algebrite (^) jika ada
         let inputF = rawF.replace(/\*\*/g, '^');
         let inputU = rawU.replace(/\*\*/g, '^');
 
-        // 4. Tambahkan bintang perkalian jika angka menempel dengan x. Contoh: 2x menjadi 2*x
+        // 2. Tambahkan bintang (*) otomatis jika ada angka menempel langsung di depan x (Contoh: 2x -> 2*x)
         inputF = inputF.replace(/(\d+)x/g, '$1*x');
         inputU = inputU.replace(/(\d+)x/g, '$1*x');
-        
-        // 5. Tambahkan bintang perkalian antar kurung atau x dengan kurung. Contoh: x(x^2) menjadi x*(x^2)
-        inputF = inputF.replace(/x\(/g, 'x*(').replace(/\)\(/g, ')*(');
-        inputU = inputU.replace(/x\(/g, 'x*(').replace(/\)\(/g, ')*(');
 
-        // --- PROSES KALKULASI MATEMATIKA ---
-        
+        // --- PROSES INTEGRAL ---
         // Hitung turunan du/dx
         let du_dx = Algebrite.derivative(inputU, 'x').toString();
         
-        // Hitung integral akhir f(x) dx
+        // Hitung integral otomatis dari f(x) terhadap x
         let hasilIntegral = Algebrite.integral(inputF, 'x').toString();
 
+        // Cek jika Algebrite gagal menyelesaikan integralnya
         if (hasilIntegral === "integral(" + inputF + ")") {
             showError("Maaf, fungsi terlalu kompleks atau tidak dapat diselesaikan dengan aturan substitusi dasar library ini.");
             return;
         }
 
-        // Jika semua kalkulasi aman, tampilkan container hasil
+        // Tampilkan Container Hasil
         resultContainer.style.display = 'block';
 
-        // Format ke tampilan rumus LaTeX yang cantik
+        // Format hasil string ke bentuk kode tampilan LaTeX via Algebrite printf
         let f_latex = Algebrite.printf(inputF);
         let u_latex = Algebrite.printf(inputU);
         let dudx_latex = Algebrite.printf(du_dx);
         let hasil_latex = Algebrite.printf(hasilIntegral);
 
-        // Pasang hasil ke halaman HTML
+        // Pasang hasil langkah pengerjaan ke komponen HTML kamu
         document.getElementById('step-1-math').innerHTML = `$$u = ${u_latex}$$`;
         document.getElementById('step-2-math').innerHTML = `$$\\frac{du}{dx} = ${dudx_latex} \\implies dx = \\frac{du}{${dudx_latex}}$$`;
         document.getElementById('step-3-math').innerHTML = `$$\\int ${f_latex} \\, dx = \\int g(u) \\, du$$`;
         document.getElementById('step-4-math').innerHTML = `$$\\int g(u) \\, du = F(u) + C$$`;
         document.getElementById('step-5-math').innerHTML = `$$\\int ${f_latex} \\, dx = ${hasil_latex} + C$$`;
 
-        // Perintahkan MathJax menggambar simbol matematika
+        // Perintahkan MathJax untuk merender ulang rumus matematika di layar
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise();
         }
 
     } catch (error) {
-        showError("Terjadi kesalahan format matematika. Pastikan jumlah kurung pembuka '(' dan penutup ')' sudah seimbang.");
+        showError("Terjadi kesalahan format penulisan matematika. Pastikan aturan pengetikan benar (gunakan '*' untuk perkalian dan '^' untuk pangkat).");
         console.error(error);
     }
 }
