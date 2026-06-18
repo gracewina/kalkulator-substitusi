@@ -15,16 +15,35 @@ function prosesSubstitusi() {
     }
 
     try {
-        // --- SISTEM FORMATTING AMAN ---
-        // 1. Ubah format pangkat Python (**) menjadi format Algebrite (^) jika ada
-        let inputF = rawF.replace(/\*\*/g, '^');
-        let inputU = rawU.replace(/\*\*/g, '^');
+        // --- SISTEM FORMATTING AMAN (SANITASI INPUT) ---
+        
+        // 1. Bersihkan spasi berlebih agar pemrosesan string seragam
+        let inputF = rawF.replace(/\s+/g, '');
+        let inputU = rawU.replace(/\s+/g, '');
 
-        // 2. Tambahkan bintang (*) otomatis jika ada angka menempel langsung di depan x (Contoh: 2x -> 2*x)
-        inputF = inputF.replace(/(\d+)x/g, '$1*x');
-        inputU = inputU.replace(/(\d+)x/g, '$1*x');
+        // 2. Ubah format pangkat Python (**) menjadi format Algebrite (^) jika ada
+        inputF = inputF.replace(/\*\*/g, '^');
+        inputU = inputU.replace(/\*\*/g, '^');
+
+        // 3. Tambahkan '*' otomatis untuk angka di depan x (Contoh: 2x -> 2*x)
+        inputF = inputF.replace(/(\d+)(x)/g, '$1*$2');
+        inputU = inputU.replace(/(\d+)(x)/g, '$1*$2');
+
+        // 4. PERBAIKAN UTAMA: Tambahkan '*' otomatis untuk angka di depan kurung buka (Contoh: 2(x^3) -> 2*(x^3))
+        inputF = inputF.replace(/(\d+)\(/g, '$1*(');
+        inputU = inputU.replace(/(\d+)\(/g, '$1*(');
+
+        // 5. PERBAIKAN UTAMA: Tambahkan '*' otomatis di antara x dan kurung (Contoh: x(x+1) -> x*(x+1))
+        inputF = inputF.replace(/x\(/g, 'x*(');
+        inputU = inputU.replace(/x\(/g, 'x*(');
+
+        // 6. Bersihkan kurung tunggal yang tidak perlu pada variabel berpangkat (Contoh: (x^3) -> x^3)
+        // Ini mencegah Algebrite bingung dengan kurung pembungkus redundan
+        inputF = inputF.replace(/\((x\^\d+)\)/g, '$1');
+        inputU = inputU.replace(/\((x\^\d+)\)/g, '$1');
 
         // --- PROSES INTEGRAL ---
+        
         // Hitung turunan du/dx
         let du_dx = Algebrite.derivative(inputU, 'x').toString();
         
@@ -46,7 +65,7 @@ function prosesSubstitusi() {
         let dudx_latex = Algebrite.printf(du_dx);
         let hasil_latex = Algebrite.printf(hasilIntegral);
 
-        // Pasang hasil langkah pengerjaan ke komponen HTML kamu
+        // Pasang hasil langkah pengerjaan ke komponen HTML
         document.getElementById('step-1-math').innerHTML = `$$u = ${u_latex}$$`;
         document.getElementById('step-2-math').innerHTML = `$$\\frac{du}{dx} = ${dudx_latex} \\implies dx = \\frac{du}{${dudx_latex}}$$`;
         document.getElementById('step-3-math').innerHTML = `$$\\int ${f_latex} \\, dx = \\int g(u) \\, du$$`;
