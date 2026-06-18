@@ -1,6 +1,12 @@
 function prosesSubstitusi() {
-    const inputF = document.getElementById('input-f').value.trim();
-    const inputU = document.getElementById('input-u').value.trim();
+    // Mengambil input dan otomatis mengubah '**' menjadi '^' agar didukung oleh Algebrite
+    let rawF = document.getElementById('input-f').value.trim();
+    let rawU = document.getElementById('input-u').value.trim();
+
+    // Proses konversi otomatis jika user mengetik menggunakan format komputer / Python (**)
+    const inputF = rawF.replace(/\*\*/g, '^');
+    const inputU = rawU.replace(/\*\*/g, '^');
+
     const resultContainer = document.getElementById('result-container');
     const errorContainer = document.getElementById('error-container');
     const errorMessage = document.getElementById('error-message');
