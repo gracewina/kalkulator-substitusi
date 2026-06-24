@@ -21,11 +21,10 @@ function cariFPB(x, y) {
     return x;
 }
 
-// Fungsi mengubah angka menjadi pecahan HTML murni
+// Fungsi mengubah angka menjadi pecahan HTML murni yang rapi
 function kePecahanTeks(pembilang, penyebut) {
     if (pembilang === 0) return "0";
     
-    // Jika bisa dibagi habis menjadi bilangan bulat
     if (pembilang % penyebut === 0) {
         return `${pembilang / penyebut}`;
     }
@@ -50,65 +49,60 @@ function kePecahanTeks(pembilang, penyebut) {
 
 function prosesIntegralLanjutan() {
     let soalRaw = document.getElementById('input-soal').value;
-    let soal = soalRaw.replace(/\s+/g, ''); // Hapus spasi
+    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan spasi
 
-    // REGEX BARU: Mendukung x luar, x berpangkat di dalam kurung, dan pangkat kurung
-    // Pola: ∫ [x_luar] ( [a]x^[pangkat_x] [+-] [b] ) ^ [n] dx
-    const pola = /(?:∫)?(-?\d*x?\^?\d*)\(?(- Silakan\d*)\)?x?\^?(\d*)\(?(-?\d*)x\^?(\d*)([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
-    
-    // Pola flexibel khusus mendeteksi format: x(ax^p + b)^n atau kx(ax^p + b)^n
-    const polaSubsPangkat = /(?:∫)?(-?\d*)x?\^?(\d*)\(?(- Silakan\d*)x\^?(\d*)([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
-    const match = soal.match(polaSubsPangkat);
+    // REGEX BARU: Mendukung variabel luar dan pangkat x di dalam kurung secara opsional
+    // Pola: ∫ [k_luar][x^[p_luar]] ( [a]x^[p_dalam] [+-] [b] ) ^ [n] dx
+    const polaMulus = /(?:∫)?(-?\d*)(?:x(?:\^?(\d+))?)?\(?(-?\d*)x(?:\^?(\d+))?([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
+    const match = soal.match(polaMulus);
 
     if (!match) {
-        alert("Format soal tidak dikenali! Gunakan format seperti: ∫ x(x^2 + 3)^5 dx atau ∫ 2x^2(free x^3 - 1)^4 dx");
+        alert("Format soal tidak dikenali! Gunakan format seperti: ∫ x(x^2 + 3)^5 dx atau ∫ 3x^2(2x^3 - 1)^4 dx");
         return;
     }
 
-    // Ekstraksi Variabel dari Soal:
-    // match[1] = Koefisien luar kurung (k)
-    // match[2] = Pangkat x luar kurung (p_luar)
-    // match[3] = Koefisien x dalam kurung (a)
-    // match[4] = Pangkat x dalam kurung (p_dalam)
-    // match[5] = Konstanta dalam kurung (b)
-    // match[6] = Pangkat kurung luar (n)
-
-    let k = match[1] === "" ? 1 : (match[1] === "-" ? -1 : parseFloat(match[1]));
-    let pLuar = match[2] === "" ? 1 : parseFloat(match[2]);
-    let a = match[3] === "" ? 1 : (match[3] === "-" ? -1 : parseFloat(match[3]));
-    let pDalam = match[4] === "" ? 1 : parseFloat(match[4]);
+    // Ambil nilai dari hasil pencocokan Regex
+    let kLuarTeks = match[1];
+    let pLuarTeks = match[2];
+    let aTeks = match[3];
+    let pDalamTeks = match[4];
     let b = parseFloat(match[5]);
     let n = parseFloat(match[6]);
+
+    // Logika penentuan nilai default jika user tidak mengetik angka secara eksplisit
+    let k = kLuarTeks === "" ? 1 : (kLuarTeks === "-" ? -1 : parseFloat(kLuarTeks));
+    let pLuar = soal.includes('x(') || soal.includes('x^') ? (pLuarTeks === undefined || pLuarTeks === "" ? 1 : parseFloat(pLuarTeks)) : 0;
+    let a = aTeks === "" ? 1 : (aTeks === "-" ? -1 : parseFloat(aTeks));
+    let pDalam = pDalamTeks === undefined || pDalamTeks === "" ? 1 : parseFloat(pDalamTeks);
 
     if (n === -1) {
         alert("Untuk pangkat n = -1 hasil berupa ln. Kalkulator ini khusus untuk n ≠ -1.");
         return;
     }
 
-    // Hitung turunan dari u (du/dx = a * pDalam * x^(pDalam - 1))
+    // Hitung turunan u (du/dx = a * pDalam * x^(pDalam - 1))
     let koefDu = a * pDalam;
     let pangkatDu = pDalam - 1;
+
+    // Hitung nilai akhir penyebut pecahan luar
+    let penyebutBawah = koefDu * (n + 1);
+    let pangkatBaru = n + 1;
+    const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
 
     const resultBox = document.getElementById('result-box');
     const langkahDiv = document.getElementById('langkah-langkah');
     const btnCopy = document.getElementById('btn-copy');
 
-    const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
-    const pangkatBaru = n + 1;
-    
-    // Sederhanakan nilai sisa luar kurung setelah dibagi turunan u
-    // Sifat substitusi: x luar akan habis terbagi oleh turunan x dalam
-    let penyebutBawah = koefDu * pangkatBaru;
-
+    // Susun visualisasi langkah penyelesaian menggunakan HTML murni tanpa $$
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
         <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold;">
-            ∫ ${k !== 1 ? k : ''}${pLuar !== 0 ? `x<sup>${pLuar}</sup>` : ''}(${a !== 1 ? a : ''}x<sup>${pDalam}</sup> ${tandaB})<sup>${n}</sup> dx
+            ∫ ${kLuarTeks === "-" ? "-" : (k !== 1 ? k : "")}${pLuar > 0 ? `x<sup>${pLuar}</sup>` : ""}(${aTeks === "-" ? "-" : (a !== 1 ? a : "")}x<sup>${pDalam}</sup> ${tandaB})<sup>${n}</sup> dx
         </p>
         <hr style="border:0; border-top: 1px solid #ccc; margin: 15px 0;">
         
         <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai u</strong></p>
-        <p style="font-size: 18px; text-align: center; margin: 10px 0;">u = ${a !== 1 ? a : ''}x<sup>${pDalam}</sup> ${tandaB}</p>
+        <p style="font-size: 18px; text-align: center; margin: 10px 0;">u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}</p>
         
         <p><strong>Langkah 2: Cari turunan u terhadap x (du/dx)</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
@@ -123,7 +117,7 @@ function prosesIntegralLanjutan() {
             </div>
         </div>
         
-        <p><strong>Langkah 3: Substitusikan u dan dx ke dalam soal awal (x luar akan saling membagi habis)</strong></p>
+        <p><strong>Langkah 3: Substitusikan nilai u dan dx ke dalam soal awal (variabel x luar tereliminasi habis)</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
             <div>∫ u<sup>${n}</sup> · </div>
             ${kePecahanTeks(k, koefDu)} du
@@ -137,11 +131,11 @@ function prosesIntegralLanjutan() {
             <div>u<sup>${pangkatBaru}</sup> + C</div>
         </div>
         
-        <p><strong>Langkah 5: Sederhanakan koefisien akhir dan kembalikan nilai u</strong></p>
+        <p><strong>Langkah 5: Sederhanakan koefisien akhir dan kembalikan nilai u ke fungsi semula</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; margin: 20px 0; color: #2b6cb0; font-weight: bold;">
             <div>Hasil Akhir = </div>
             ${kePecahanTeks(k, penyebutBawah)}
-            <div>(${a !== 1 ? a : ''}x<sup>${pDalam}</sup> ${tandaB})<sup>${pangkatBaru}</sup> + C</div>
+            <div>(${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB})<sup>${pangkatBaru}</sup> + C</div>
         </div>
     `;
 
