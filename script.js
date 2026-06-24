@@ -44,19 +44,16 @@ function prosesIntegralLanjutan() {
     const penyebutBawah = a * pangkatBaru;
     const pengaliK = k !== 1 ? k : '';
 
-    // PERBAIKAN: Semua tanda $$ dan $ sudah dihapus total! 
-    // Menggunakan gaya tulisan HTML murni agar simbol ∫ dan pecahan tampil langsung tanpa error
+    // PERBAIKAN TOTAL: Tanpa $$, tanpa \\int, langsung menggunakan simbol ∫ asli dan struktur HTML murni!
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-family: 'Courier New', Courier, monospace;">
+        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold;">
             ∫ ${pengaliK}(${a}x ${tandaB})<sup>${n}</sup> dx
         </p>
-        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+        <hr style="border:0; border-top: 1px solid #ccc; margin: 15px 0;">
         
         <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai u</strong></p>
-        <p style="font-size: 18px; text-align: center; background: #f7fafc; padding: 8px; border-radius: 5px; display: inline-block; margin: 10px auto; width: 80%;">
-            u = ${a}x ${tandaB}
-        </p>
+        <p style="font-size: 18px; text-align: center; margin: 10px 0;">u = ${a}x ${tandaB}</p>
         
         <p><strong>Langkah 2: Cari turunan u terhadap x</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
@@ -116,7 +113,7 @@ function prosesIntegralLanjutan() {
         </div>
     `;
 
-    // Masukkan hasil teks langsung ke HTML tanpa pemicu MathJax lagi
+    // Langsung masukkan teks HTML ke halaman web
     langkahDiv.innerHTML = htmlLangkah;
     
     // Tampilkan box hasil
