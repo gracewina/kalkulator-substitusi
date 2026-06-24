@@ -16,7 +16,6 @@ function prosesIntegralLanjutan() {
     let soal = soalRaw.replace(/\s+/g, '');
 
     // Pola Regex untuk mendeteksi k(ax+b)^n atau (ax+b)^n dengan atau tanpa simbol integral/dx
-    // Mendukung tanda positif dan negatif
     const pola = /(?:∫)?(-?\d*)\(?(-?\d*)x([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
     const match = soal.match(pola);
 
@@ -42,39 +41,46 @@ function prosesIntegralLanjutan() {
 
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
     const pangkatBaru = n + 1;
-    const pengaliLuar = k !== 1 ? `${k} \\cdot ` : '';
     
     // Perhitungan pecahan koefisien akhir
     const penyebutAtas = k;
     const penyebutBawah = a * pangkatBaru;
     
+    // PERBAIKAN: Menggunakan escape backslash (\\\\) agar string LaTeX tidak rusak saat diproses JavaScript
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p>$$\\int ${k !== 1 ? k : ''}(${a}x ${tandaB})^{${n}} \\, dx$$</p>
+        <p>$$\\\\int ${k !== 1 ? k : ''}(${a}x ${tandaB})^{${n}} \\\\, dx$$</p>
         <hr>
         <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai $u$</strong></p>
         <p>$$u = ${a}x ${tandaB}$$</p>
         
-        <p><strong>Langkah 2: Cari turunan $u$ terhadap $x$ ($du/dx$)</strong></p>
-        <p>$$\\frac{du}{dx} = ${a} \\implies dx = \\frac{du}{${a}}$$</p>
+        <p><strong>Langkah 2: Cari turunan $u$ terhadap $x$ ($\\\\frac{du}{dx}$)</strong></p>
+        <p>$$\\\\frac{du}{dx} = ${a} \\\\implies dx = \\\\frac{du}{${a}}$$</p>
         
         <p><strong>Langkah 3: Substitusikan nilai $u$ dan $dx$ ke dalam soal awal</strong></p>
-        <p>$$\\int ${k !== 1 ? k : ''} u^{${n}} \\cdot \\frac{du}{${a}} = \\frac{${k}}{${a}} \\int u^{${n}} \\, du$$</p>
+        <p>$$\\\\int ${k !== 1 ? k : ''} u^{${n}} \\\\cdot \\\\frac{du}{${a}} = \\\\frac{${k}}{${a}} \\\\int u^{${n}} \\\\, du$$</p>
         
         <p><strong>Langkah 4: Integralkan nilai $u$ menggunakan aturan pangkat</strong></p>
-        <p>$$\\frac{${k}}{${a}} \\cdot \\left( \\frac{1}{${n} + 1} u^{${n} + 1} \\right) + C$$</p>
-        <p>$$\\frac{${k}}{${a}} \\cdot \\frac{1}{${pangkatBaru}} u^{${pangkatBaru}} + C = \\frac{${penyebutAtas}}{${penyebutBawah}} u^{${pangkatBaru}} + C$$</p>
+        <p>$$\\\\frac{${k}}{${a}} \\\\cdot \\\\left( \\\\frac{1}{${n} + 1} u^{${n} + 1} \\\\right) + C$$</p>
+        <p>$$\\\\frac{${k}}{${a}} \\\\cdot \\\\frac{1}{${pangkatBaru}} u^{${pangkatBaru}} + C = \\\\frac{${penyebutAtas}}{${penyebutBawah}} u^{${pangkatBaru}} + C$$</p>
         
         <p><strong>Langkah 5: Kembalikan variabel $u$ menjadi fungsi $x$ semula</strong></p>
-        <p>$$\\text{Hasil Akhir} = \\frac{${penyebutAtas}}{${penyebutBawah}} (${a}x ${tandaB})^{${pangkatBaru}} + C$$</p>
+        <p>$$\\\\text{Hasil Akhir} = \\\\frac{${penyebutAtas}}{${penyebutBawah}} (${a}x ${tandaB})^{${pangkatBaru}} + C$$</p>
     `;
 
+    // Masukkan konten teks ke dalam elemen HTML terlebih dahulu
     langkahDiv.innerHTML = htmlLangkah;
+    
+    // Tampilkan container pembungkusnya
     resultBox.style.display = 'block';
     btnCopy.style.display = 'block';
 
-    // Merender ulang teks LaTeX memakai MathJax agar tampil rapi di browser
-    MathJax.typesetPromise();
+    // Perintah paksa re-render MathJax v3 secara asynchronous
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([langkahDiv]).catch(function (err) {
+            console.error("MathJax gagal memuat: " + err.message);
+        });
+    }
 }
 
 function salinTeks() {
