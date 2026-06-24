@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Integral Substitusi - Gracewinna</title>
+    <title>Kalkulator Integral Substitusi Super - Gracewinna</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/MathJax.js"></script>
@@ -17,31 +17,29 @@
 
     <main class="container">
         <section class="input-section">
-            <h3>Bentuk Umum: $\int (ax + b)^n dx$</h3>
-            <p>Masukkan nilai untuk fungsi integral substitusi linier:</p>
+            <h3>Format Bebas dengan Simbol $\int$</h3>
+            <p>Klik tombol simbol untuk memasukkan rumus, lalu sesuaikan angkanya:</p>
             
-            <div class="form-group">
-                <label for="input-a">Nilai a (koefisien x):</label>
-                <input type="number" id="input-a" value="2" placeholder="Contoh: 2">
+            <div class="math-buttons">
+                <button type="button" class="btn-symbol" onclick="insertSymbol('∫')">∫ (Integral)</button>
+                <button type="button" class="btn-symbol" onclick="insertSymbol('^')">^ (Pangkat)</button>
+                <button type="button" class="btn-symbol" onclick="insertSymbol('dx')">dx</button>
             </div>
 
-            <div class="form-group">
-                <label for="input-b">Nilai b (konstanta):</label>
-                <input type="number" id="input-b" value="3" placeholder="Contoh: 3">
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="input-soal">Masukkan Soal Integral:</label>
+                <input type="text" id="input-soal" value="∫ (2x + 3)^5 dx" placeholder="Contoh: ∫ (2x + 3)^5 dx">
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    *Mendukung pola linear bergaya $\int (ax + b)^n dx$ atau $\int a(bx+c)^n dx$
+                </small>
             </div>
 
-            <div class="form-group">
-                <label for="input-n">Pangkat n (bukan -1):</label>
-                <input type="number" id="input-n" value="5" placeholder="Contoh: 5">
-            </div>
-
-            <button onclick="hitungIntegral()">Hitung Langkah</button>
+            <button onclick="prosesIntegralLanjutan()" class="btn-hitung">Hitung Langkah</button>
         </section>
 
         <section class="result-section" id="result-box" style="display: none;">
             <h3>Langkah Penyelesaian:</h3>
             <div id="langkah-langkah"></div>
-            
             <button id="btn-copy" onclick="salinTeks()" style="display: none; background-color: #28a745; margin-top: 15px;">
                 Salin Langkah Penyelesaian
             </button>

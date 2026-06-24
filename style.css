@@ -74,3 +74,25 @@ footer {
     color: #777;
     margin-top: 50px;
 }
+.math-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-symbol {
+    flex: 1;
+    background-color: #e2e8f0;
+    color: #333;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    margin-top: 0;
+}
+
+.btn-symbol:hover {
+    background-color: #cbd5e1;
+}
+
+.btn-hitung {
+    background-color: #4A90E2;
+}
