@@ -1,191 +1,76 @@
-* {
-    box-sizing: border-box;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
     margin: 0;
     padding: 0;
-}
-
-body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: #333333;
-    min-height: 100vh;
-    padding: 40px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.app-container {
-    width: 100%;
-    max-width: 750px;
+    color: #333;
 }
 
 header {
+    background-color: #4A90E2;
+    color: white;
     text-align: center;
-    margin-bottom: 30px;
-    color: #ffffff;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-header h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-.author {
-    font-weight: 600;
-    border-bottom: 2px solid #ffffff;
-    padding-bottom: 2px;
-}
-
-.calculator-card {
-    background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    padding: 35px;
+.container {
+    max-width: 600px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 .form-group {
-    margin-bottom: 22px;
+    margin-bottom: 15px;
 }
 
 label {
     display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-size: 1.05rem;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
-input[type="text"] {
+input {
     width: 100%;
-    padding: 14px 16px;
-    font-size: 1rem;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-    background-color: #f8fafc;
-}
-
-input[type="text"]:focus {
-    border-color: #3b82f6;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-}
-
-.hint {
-    display: block;
-    margin-top: 6px;
-    color: #64748b;
-    font-size: 0.85rem;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
 }
 
 button {
-    width: 100%;
-    padding: 16px;
-    background-color: #2563eb;
-    color: #ffffff;
+    background-color: #4A90E2;
+    color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    width: 100%;
+    margin-top: 10px;
+    transition: background 0.3s;
 }
 
 button:hover {
-    background-color: #1d4ed8;
-}
-
-button:active {
-    transform: scale(0.99);
+    background-color: #357ABD;
 }
 
 .result-section {
-    margin-top: 35px;
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-.result-section h2 {
-    color: #1e3c72;
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-}
-
-hr {
-    border: 0;
-    height: 1px;
-    background-color: #e2e8f0;
-    margin-bottom: 25px;
-}
-
-.step-box {
-    background-color: #f8fafc;
-    border-left: 4px solid #3b82f6;
-    padding: 18px;
-    margin-bottom: 20px;
-    border-radius: 0 8px 8px 0;
-}
-
-.step-box h3 {
-    font-size: 1.1rem;
-    color: #1e293b;
-    margin-bottom: 8px;
-}
-
-.step-box p {
-    color: #475569;
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-    line-height: 1.5;
-}
-
-.step-box.highlight {
-    background-color: #eff6ff;
-    border-left-color: #10b981;
-}
-
-.step-box.highlight h3 {
-    color: #065f46;
-}
-
-.math-display {
-    background-color: #ffffff;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    overflow-x: auto;
-    font-size: 1.15rem;
-}
-
-.error-box {
-    margin-top: 25px;
-    background-color: #fef2f2;
-    border: 1px solid #fca5a5;
-    border-left: 4px solid #ef4444;
-    padding: 15px;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #eef5fc;
+    border-left: 5px solid #4A90E2;
     border-radius: 4px;
-    color: #991b1b;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 600px) {
-    body {
-        padding: 20px 10px;
-    }
-    .calculator-card {
-        padding: 20px;
-    }
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #777;
+    margin-top: 50px;
 }
