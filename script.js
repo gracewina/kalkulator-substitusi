@@ -44,19 +44,22 @@ function prosesIntegralLanjutan() {
     const penyebutBawah = a * pangkatBaru;
     const pengaliK = k !== 1 ? k : '';
 
-    // PERBAIKAN UTAMA: Menggunakan tag HTML murni dan simbol asli 
-    // agar langsung tampil sebagai simbol matematika tanpa ketergantungan MathJax
+    // PERBAIKAN: Semua tanda $$ dan $ sudah dihapus total! 
+    // Menggunakan gaya tulisan HTML murni agar simbol ∫ dan pecahan tampil langsung tanpa error
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p style="font-size: 20px; text-align: center; margin: 15px 0;">
-            <b>∫</b> ${pengaliK}(${a}x ${tandaB})<sup>${n}</sup> dx
+        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-family: 'Courier New', Courier, monospace;">
+            ∫ ${pengaliK}(${a}x ${tandaB})<sup>${n}</sup> dx
         </p>
-        <hr>
-        <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai <i>u</i></strong></p>
-        <p style="font-size: 18px; text-align: center;">u = ${a}x ${tandaB}</p>
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
         
-        <p><strong>Langkah 2: Cari turunan <i>u</i> terhadap <i>x</i></strong></p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 10px 0;">
+        <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai u</strong></p>
+        <p style="font-size: 18px; text-align: center; background: #f7fafc; padding: 8px; border-radius: 5px; display: inline-block; margin: 10px auto; width: 80%;">
+            u = ${a}x ${tandaB}
+        </p>
+        
+        <p><strong>Langkah 2: Cari turunan u terhadap x</strong></p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">dx</div>
@@ -68,9 +71,9 @@ function prosesIntegralLanjutan() {
             </div>
         </div>
         
-        <p><strong>Langkah 3: Substitusikan nilai <i>u</i> dan <i>dx</i> ke dalam soal awal</strong></p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 10px 0;">
-            <div><b>∫</b> ${pengaliK}u<sup>${n}</sup> · </div>
+        <p><strong>Langkah 3: Substitusikan nilai u dan dx ke dalam soal awal</strong></p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
+            <div>∫ ${pengaliK}u<sup>${n}</sup> · </div>
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">${a}</div>
@@ -80,11 +83,11 @@ function prosesIntegralLanjutan() {
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">${k}</div>
                 <div style="padding-top: 2px;">${a}</div>
             </div>
-            <div><b>∫</b> u<sup>${n}</sup> du</div>
+            <div>∫ u<sup>${n}</sup> du</div>
         </div>
         
-        <p><strong>Langkah 4: Integralkan nilai <i>u</i> menggunakan aturan pangkat</strong></p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 10px 0;">
+        <p><strong>Langkah 4: Integralkan nilai u menggunakan aturan pangkat</strong></p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 15px 0;">
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">${k}</div>
                 <div style="padding-top: 2px;">${a}</div>
@@ -102,21 +105,21 @@ function prosesIntegralLanjutan() {
             <div>u<sup>${pangkatBaru}</sup> + C</div>
         </div>
         
-        <p><strong>Langkah 5: Kembalikan variabel <i>u</i> menjadi fungsi <i>x</i> semula</strong></p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; margin: 15px 0; color: #2b6cb0;">
-            <div><b>Hasil Akhir = </b></div>
+        <p><strong>Langkah 5: Kembalikan variabel u menjadi fungsi x semula</strong></p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; margin: 20px 0; color: #2b6cb0; font-weight: bold;">
+            <div>Hasil Akhir = </div>
             <div style="text-align: center;">
-                <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">${k}</div>
+                <div style="border-bottom: 2px solid #2b6cb0; padding-bottom: 2px;">${k}</div>
                 <div style="padding-top: 2px;">${penyebutBawah}</div>
             </div>
             <div>(${a}x ${tandaB})<sup>${pangkatBaru}</sup> + C</div>
         </div>
     `;
 
-    // Inject string ke HTML DOM
+    // Masukkan hasil teks langsung ke HTML tanpa pemicu MathJax lagi
     langkahDiv.innerHTML = htmlLangkah;
     
-    // Buka display box hasil
+    // Tampilkan box hasil
     resultBox.style.display = 'block';
     btnCopy.style.display = 'block';
 }
