@@ -12,26 +12,26 @@ function insertSymbol(symbol) {
 function prosesIntegralLanjutan() {
     let soalRaw = document.getElementById('input-soal').value;
     
-    // Bersihkan spasi berlebih dan karakter pengganggu untuk pemrosesan
+    // Bersihkan semua spasi agar Regex bekerja akurat
     let soal = soalRaw.replace(/\s+/g, '');
 
-    // Pola Regex untuk mendeteksi k(ax+b)^n atau (ax+b)^n dengan atau tanpa simbol integral/dx
+    // Pola Regex untuk mendeteksi k(ax+b)^n atau (ax+b)^n
     const pola = /(?:∫)?(-?\d*)\(?(-?\d*)x([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
     const match = soal.match(pola);
 
     if (!match) {
-        alert("Format soal tidak dikenali! Pastikan mengikuti pola tipe substitusi linear, contoh: ∫ (2x + 3)^5 dx atau ∫ 3(4x - 1)^2 dx");
+        alert("Format soal tidak dikenali! Contoh format: ∫ (2x + 3)^5 dx");
         return;
     }
 
-    // Ekstraksi konstanta dari hasil pencarian Regex
+    // Ekstraksi nilai variabel matematika
     let k = match[1] === "" || match[1] === "-" ? (match[1] === "-" ? -1 : 1) : parseFloat(match[1]);
     let a = match[2] === "" || match[2] === "-" ? (match[2] === "-" ? -1 : 1) : parseFloat(match[2]);
     let b = parseFloat(match[3]);
     let n = parseFloat(match[4]);
 
     if (n === -1) {
-        alert("Untuk pangkat n = -1 hasil berupa ln. Fitur kalkulator ini difokuskan untuk n ≠ -1.");
+        alert("Untuk pangkat n = -1 hasil berupa ln. Kalkulator ini khusus untuk n ≠ -1.");
         return;
     }
 
@@ -41,44 +41,42 @@ function prosesIntegralLanjutan() {
 
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
     const pangkatBaru = n + 1;
-    
-    // Perhitungan pecahan koefisien akhir
-    const penyebutAtas = k;
     const penyebutBawah = a * pangkatBaru;
-    
-    // PERBAIKAN: Menggunakan escape backslash (\\\\) agar string LaTeX tidak rusak saat diproses JavaScript
-let htmlLangkah = `
+    const pengaliK = k !== 1 ? k : '';
+
+    // PERBAIKAN TOTAL: Menulis rumus MathJax tanpa tab/spasi baru di dalam tanda $$ 
+    // Menggunakan double backslash tunggal agar langsung diterjemahkan sebagai simbol oleh MathJax
+    let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p>$$\\int ${k !== 1 ? k : ''}(${a}x ${tandaB})^{${n}} \\, dx$$</p>
+        <p>$$\\int ${pengaliK}(${a}x ${tandaB})^{${n}} dx$$</p>
         <hr>
         <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai $u$</strong></p>
         <p>$$u = ${a}x ${tandaB}$$</p>
         
-        <p><strong>Langkah 2: Cari turunan $u$ terhadap $x$ (\\$\\frac{du}{dx}\\$)</strong></p>
+        <p><strong>Langkah 2: Cari turunan $u$ terhadap $x$</strong></p>
         <p>$$\\frac{du}{dx} = ${a} \\implies dx = \\frac{du}{${a}}$$</p>
         
         <p><strong>Langkah 3: Substitusikan nilai $u$ dan $dx$ ke dalam soal awal</strong></p>
-        <p>$$\\int ${k !== 1 ? k : ''} u^{${n}} \\cdot \\frac{du}{${a}} = \\frac{${k}}{${a}} \\int u^{${n}} \\, du$$</p>
+        <p>$$\\int ${pengaliK} u^{${n}} \\cdot \\frac{du}{${a}} = \\frac{${k}}{${a}} \\int u^{${n}} du$$</p>
         
         <p><strong>Langkah 4: Integralkan nilai $u$ menggunakan aturan pangkat</strong></p>
-        <p>$$\\frac{${k}}{${a}} \\cdot \\left( \\frac{1}{${n} + 1} u^{${n} + 1} \\right) + C$$</p>
-        <p>$$\\frac{${k}}{${a}} \\cdot \\frac{1}{${pangkatBaru}} u^{${pangkatBaru}} + C = \\frac{${penyebutAtas}}{${penyebutBawah}} u^{${pangkatBaru}} + C$$</p>
+        <p>$$\\frac{${k}}{${a}} \\cdot \\left( \\frac{1}{${pangkatBaru}} u^{${pangkatBaru}} \\right) + C = \\frac{${k}}{${penyebutBawah}} u^{${pangkatBaru}} + C$$</p>
         
         <p><strong>Langkah 5: Kembalikan variabel $u$ menjadi fungsi $x$ semula</strong></p>
-        <p>$$\\text{Hasil Akhir} = \\frac{${penyebutAtas}}{${penyebutBawah}} (${a}x ${tandaB})^{${pangkatBaru}} + C$$</p>
+        <p>$$\\text{Hasil Akhir} = \\frac{${k}}{${penyebutBawah}} (${a}x ${tandaB})^{${pangkatBaru}} + C$$</p>
     `;
 
-    // Masukkan konten teks ke dalam elemen HTML terlebih dahulu
+    // Inject string ke HTML DOM
     langkahDiv.innerHTML = htmlLangkah;
     
-    // Tampilkan container pembungkusnya
+    // Buka display box hasil
     resultBox.style.display = 'block';
     btnCopy.style.display = 'block';
 
-    // Perintah paksa re-render MathJax v3 secara asynchronous
+    // Paksa MathJax v3 melakukan compile ulang khusus pada area div langkah-langkah
     if (window.MathJax && window.MathJax.typesetPromise) {
         window.MathJax.typesetPromise([langkahDiv]).catch(function (err) {
-            console.error("MathJax gagal memuat: " + err.message);
+            console.error("Gagal merender simbol matematika: " + err.message);
         });
     }
 }
