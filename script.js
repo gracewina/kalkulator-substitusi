@@ -49,10 +49,9 @@ function kePecahanTeks(pembilang, penyebut) {
 
 function prosesIntegralLanjutan() {
     let soalRaw = document.getElementById('input-soal').value;
-    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan spasi
+    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan semua spasi
 
-    // REGEX BARU: Mendukung variabel luar dan pangkat x di dalam kurung secara opsional
-    // Pola: ∫ [k_luar][x^[p_luar]] ( [a]x^[p_dalam] [+-] [b] ) ^ [n] dx
+    // REGEX PERBAIKAN: Super aman, mendeteksi x luar dan pangkat dalam kurung secara opsional
     const polaMulus = /(?:∫)?(-?\d*)(?:x(?:\^?(\d+))?)?\(?(-?\d*)x(?:\^?(\d+))?([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
     const match = soal.match(polaMulus);
 
@@ -61,7 +60,7 @@ function prosesIntegralLanjutan() {
         return;
     }
 
-    // Ambil nilai dari hasil pencocokan Regex
+    // Ambil string hasil tangkapan regex
     let kLuarTeks = match[1];
     let pLuarTeks = match[2];
     let aTeks = match[3];
@@ -69,7 +68,7 @@ function prosesIntegralLanjutan() {
     let b = parseFloat(match[5]);
     let n = parseFloat(match[6]);
 
-    // Logika penentuan nilai default jika user tidak mengetik angka secara eksplisit
+    // Set nilai default jika user tidak menuliskan angka secara gamblang
     let k = kLuarTeks === "" ? 1 : (kLuarTeks === "-" ? -1 : parseFloat(kLuarTeks));
     let pLuar = soal.includes('x(') || soal.includes('x^') ? (pLuarTeks === undefined || pLuarTeks === "" ? 1 : parseFloat(pLuarTeks)) : 0;
     let a = aTeks === "" ? 1 : (aTeks === "-" ? -1 : parseFloat(aTeks));
@@ -84,16 +83,16 @@ function prosesIntegralLanjutan() {
     let koefDu = a * pDalam;
     let pangkatDu = pDalam - 1;
 
-    // Hitung nilai akhir penyebut pecahan luar
-    let penyebutBawah = koefDu * (n + 1);
+    // Hitung komponen hasil integral
     let pangkatBaru = n + 1;
+    let penyebutBawah = koefDu * pangkatBaru;
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
 
     const resultBox = document.getElementById('result-box');
     const langkahDiv = document.getElementById('langkah-langkah');
     const btnCopy = document.getElementById('btn-copy');
 
-    // Susun visualisasi langkah penyelesaian menggunakan HTML murni tanpa $$
+    // Susun langkah penyelesaian dengan simbol ∫ murni (Tanpa $$)
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
         <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold;">
