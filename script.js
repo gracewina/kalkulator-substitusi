@@ -49,18 +49,17 @@ function kePecahanTeks(pembilang, penyebut) {
 
 function prosesIntegralLanjutan() {
     let soalRaw = document.getElementById('input-soal').value;
-    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan semua spasi
+    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan spasi
 
-    // REGEX PERBAIKAN: Super aman, mendeteksi x luar dan pangkat dalam kurung secara opsional
+    // REGEX: Mendukung variabel luar dan pangkat x di dalam kurung secara opsional
     const polaMulus = /(?:∫)?(-?\d*)(?:x(?:\^?(\d+))?)?\(?(-?\d*)x(?:\^?(\d+))?([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
     const match = soal.match(polaMulus);
 
     if (!match) {
-        alert("Format soal tidak dikenali! Gunakan format seperti: ∫ x(x^2 + 3)^5 dx atau ∫ 3x^2(2x^3 - 1)^4 dx");
+        alert("Format soal tidak dikenali! Gunakan format seperti: ∫ x(x^2 + 3)^5 dx");
         return;
     }
 
-    // Ambil string hasil tangkapan regex
     let kLuarTeks = match[1];
     let pLuarTeks = match[2];
     let aTeks = match[3];
@@ -68,22 +67,19 @@ function prosesIntegralLanjutan() {
     let b = parseFloat(match[5]);
     let n = parseFloat(match[6]);
 
-    // Set nilai default jika user tidak menuliskan angka secara gamblang
     let k = kLuarTeks === "" ? 1 : (kLuarTeks === "-" ? -1 : parseFloat(kLuarTeks));
     let pLuar = soal.includes('x(') || soal.includes('x^') ? (pLuarTeks === undefined || pLuarTeks === "" ? 1 : parseFloat(pLuarTeks)) : 0;
     let a = aTeks === "" ? 1 : (aTeks === "-" ? -1 : parseFloat(aTeks));
     let pDalam = pDalamTeks === undefined || pDalamTeks === "" ? 1 : parseFloat(pDalamTeks);
 
     if (n === -1) {
-        alert("Untuk pangkat n = -1 hasil berupa ln. Kalkulator ini khusus untuk n ≠ -1.");
+        alert("Untuk pangkat n = -1 hasil berupa ln.");
         return;
     }
 
-    // Hitung turunan u (du/dx = a * pDalam * x^(pDalam - 1))
+    // Perhitungan kalkulus substitusi
     let koefDu = a * pDalam;
     let pangkatDu = pDalam - 1;
-
-    // Hitung komponen hasil integral
     let pangkatBaru = n + 1;
     let penyebutBawah = koefDu * pangkatBaru;
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
@@ -92,16 +88,18 @@ function prosesIntegralLanjutan() {
     const langkahDiv = document.getElementById('langkah-langkah');
     const btnCopy = document.getElementById('btn-copy');
 
-    // Susun langkah penyelesaian dengan simbol ∫ murni (Tanpa $$)
+    // TAHAPAN DETAIL YANG DISEMPURNAKAN (Pembersihan & Penjabaran)
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold;">
+        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold; color: #1a202c;">
             ∫ ${kLuarTeks === "-" ? "-" : (k !== 1 ? k : "")}${pLuar > 0 ? `x<sup>${pLuar}</sup>` : ""}(${aTeks === "-" ? "-" : (a !== 1 ? a : "")}x<sup>${pDalam}</sup> ${tandaB})<sup>${n}</sup> dx
         </p>
-        <hr style="border:0; border-top: 1px solid #ccc; margin: 15px 0;">
+        <hr style="border:0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
         
         <p><strong>Langkah 1: Misalkan komponen di dalam kurung sebagai u</strong></p>
-        <p style="font-size: 18px; text-align: center; margin: 10px 0;">u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}</p>
+        <p style="font-size: 18px; text-align: center; margin: 10px 0; background-color: #edf2f7; padding: 6px; border-radius: 4px; display: inline-block; min-width: 150px;">
+            u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}
+        </p>
         
         <p><strong>Langkah 2: Cari turunan u terhadap x (du/dx)</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
@@ -109,28 +107,56 @@ function prosesIntegralLanjutan() {
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">dx</div>
             </div>
-            <div>= ${koefDu}x<sup>${pangkatDu}</sup> &nbsp;⇒&nbsp; dx = </div>
+            <div>= ${koefDu}x<sup>${pangkatDu}</sup></div>
+            <div style="margin: 0 10px;">⇒</div>
+            <div>dx = </div>
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">${koefDu}x<sup>${pangkatDu}</sup></div>
             </div>
         </div>
         
-        <p><strong>Langkah 3: Substitusikan nilai u dan dx ke dalam soal awal (variabel x luar tereliminasi habis)</strong></p>
+        <p><strong>Langkah 3: Substitusikan u dan dx ke dalam persamaan awal</strong></p>
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; font-size: 18px; margin: 15px 0;">
+            <div>∫ ${k !== 1 ? k : ""}${pLuar > 0 ? `x<sup>${pLuar}</sup>` : ""} · (u)<sup>${n}</sup> · </div>
+            <div style="text-align: center;">
+                <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
+                <div style="padding-top: 2px;">${koefDu}x<sup>${pangkatDu}</sup></div>
+            </div>
+        </div>
+        ${pLuar > 0 ? `
+        <p style="font-size: 14px; color: #4a5568; font-style: italic; text-align: center;">
+            *Catatan: Variabel x<sup>${pLuar}</sup> di luar kurung membagi habis x<sup>${pangkatDu}</sup> dari nilai dx, sehingga menyisakan konstanta:
+        </p>
+        ` : ""}
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
-            <div>∫ u<sup>${n}</sup> · </div>
-            ${kePecahanTeks(k, koefDu)} du
+            <div>= ∫ </div>
+            ${kePecahanTeks(k, koefDu)}
+            <div>· u<sup>${n}</sup> du</div>
+            <div>= </div>
+            ${kePecahanTeks(k, koefDu)}
+            <div>∫ u<sup>${n}</sup> du</div>
         </div>
         
-        <p><strong>Langkah 4: Integralkan nilai u menggunakan aturan pangkat (Pangkat n + 1)</strong></p>
+        <p><strong>Langkah 4: Integralkan nilai u menggunakan aturan pangkat (n + 1)</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 15px 0;">
+            ${kePecahanTeks(k, koefDu)}
+            <div> · </div>
+            <div style="text-align: center; display: inline-block; vertical-align: middle;">
+                <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">1</div>
+                <div style="padding-top: 2px;">${n} + 1</div>
+            </div>
+            <div>u<sup>${n} + 1</sup> + C</div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 15px 0;">
+            <div>= </div>
             ${kePecahanTeks(k, koefDu)}
             <div> · </div>
             ${kePecahanTeks(1, pangkatBaru)}
             <div>u<sup>${pangkatBaru}</sup> + C</div>
         </div>
         
-        <p><strong>Langkah 5: Sederhanakan koefisien akhir dan kembalikan nilai u ke fungsi semula</strong></p>
+        <p><strong>Langkah 5: Kalikan koefisien pecahan dan kembalikan nilai u ke fungsi x semula</strong></p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; margin: 20px 0; color: #2b6cb0; font-weight: bold;">
             <div>Hasil Akhir = </div>
             ${kePecahanTeks(k, penyebutBawah)}
