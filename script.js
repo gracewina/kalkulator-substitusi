@@ -21,7 +21,7 @@ function cariFPB(x, y) {
     return x;
 }
 
-// Fungsi mengubah angka menjadi pecahan HTML murni (Atas - Bawah) tanpa desimal
+// Fungsi mengubah angka menjadi pecahan HTML murni yang rapi
 function kePecahanTeks(pembilang, penyebut) {
     if (pembilang === 0) return "0";
     
@@ -49,7 +49,7 @@ function kePecahanTeks(pembilang, penyebut) {
 
 function prosesIntegralLanjutan() {
     let soalRaw = document.getElementById('input-soal').value;
-    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan spasi
+    let soal = soalRaw.replace(/\s+/g, ''); // Bersihkan semua spasi
 
     // REGEX: Mendukung variabel luar dan pangkat x di dalam kurung secara opsional
     const polaMulus = /(?:∫)?(-?\d*)(?:x(?:\^?(\d+))?)?\(?(-?\d*)x(?:\^?(\d+))?([+-]\d+)\)\^?(-?\d+)(?:dx)?/;
@@ -77,9 +77,11 @@ function prosesIntegralLanjutan() {
         return;
     }
 
-    // Perhitungan kalkulus substitusi komponen
+    // Hitung turunan u (du/dx = a * pDalam * x^(pDalam - 1))
     let koefDu = a * pDalam;
     let pangkatDu = pDalam - 1;
+
+    // Hitung komponen hasil integral
     let pangkatBaru = n + 1;
     let penyebutBawah = koefDu * pangkatBaru;
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
@@ -88,47 +90,47 @@ function prosesIntegralLanjutan() {
     const langkahDiv = document.getElementById('langkah-langkah');
     const btnCopy = document.getElementById('btn-copy');
 
-    // PENJABARAN TAHAPAN MATEMATIKA YANG SANGAT DETAIL (TANPA LOMPATAN)
+    // HTML Teks Penjelasan Super Rinci tanpa Lompatan Logika Rumus
     let htmlLangkah = `
         <p><strong>Soal yang terdeteksi:</strong></p>
-        <p style="font-size: 22px; text-align: center; margin: 15px 0; font-weight: bold; color: #1a202c;">
+        <p style="font-size: 24px; text-align: center; margin: 15px 0; font-weight: bold; color: #2d3748;">
             ∫ ${kLuarTeks === "-" ? "-" : (k !== 1 ? k : "")}${pLuar > 0 ? `x<sup>${pLuar}</sup>` : ""}(${aTeks === "-" ? "-" : (a !== 1 ? a : "")}x<sup>${pDalam}</sup> ${tandaB})<sup>${n}</sup> dx
         </p>
-        <hr style="border:0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+        <hr style="border:0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
         
-        <p><strong>Langkah 1: Lakukan Pemisalan Variabel</strong></p>
-        <p>Kita misalkan fungsi yang berada di dalam kurung sebagai variabel <b>u</b>:</p>
-        <p style="font-size: 18px; text-align: center; margin: 10px 0; background-color: #edf2f7; padding: 8px; border-radius: 4px; display: inline-block; min-width: 180px;">
-            <b>u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}</b>
+        <p><strong>Langkah 1: Proses Pemisalan Komponen (u)</strong></p>
+        <p>Kita memilih fungsi di dalam kurung yang memiliki pangkat variabel lebih tinggi untuk dimisalkan sebagai variabel baru <b>u</b> agar bentuk soal bisa disederhanakan:</p>
+        <p style="font-size: 18px; text-align: center; margin: 15px 0; background-color: #edf2f7; padding: 10px; border-radius: 6px; display: inline-block; min-width: 200px; font-weight: bold;">
+            u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}
         </p>
         
-        <p><strong>Langkah 2: Cari Turunan u terhadap x (Mencari Nilai dx)</strong></p>
-        <p>Turunkan fungsi <b>u</b> menggunakan aturan turunan aljabar:</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
+        <p><strong>Langkah 2: Mencari Turunan u dan Mengubah Nilai dx</strong></p>
+        <p>Turunkan fungsi <b>u</b> terhadap variabel <b>x</b> menggunakan aturan pangkat aljabar:</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 12px 0;">
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">dx</div>
             </div>
             <div>= ${a !== 1 ? a : ""} · ${pDalam}x<sup>${pDalam} - 1</sup></div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 12px 0;">
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">dx</div>
             </div>
             <div>= ${koefDu}x<sup>${pangkatDu}</sup></div>
         </div>
-        <p>Ubah persamaan di atas agar kita mendapatkan nilai dari komponen <b>dx</b>:</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
-            <div><b>dx = </b></div>
+        <p>Lakukan pindah ruas untuk mengisolasi komponen nilai <b>dx</b>:</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0; font-weight: bold;">
+            <div>dx = </div>
             <div style="text-align: center;">
                 <div style="border-bottom: 2px solid #333; padding-bottom: 2px;">du</div>
                 <div style="padding-top: 2px;">${koefDu}x<sup>${pangkatDu}</sup></div>
             </div>
         </div>
         
-        <p><strong>Langkah 3: Substitusikan u dan dx ke dalam Persamaan Awal</strong></p>
-        <p>Ganti fungsi dalam kurung menjadi <b>u</b> dan ganti <b>dx</b> menjadi nilai turunan yang diperoleh:</p>
+        <p><strong>Langkah 3: Proses Substitusi & Eliminasi Variabel x</strong></p>
+        <p>Masukkan kembali nilai pemisalan <b>u</b> dan nilai <b>dx</b> yang baru diperoleh ke dalam persamaan awal:</p>
         <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; font-size: 18px; margin: 15px 0;">
             <div>∫ ${k !== 1 ? k : ""}${pLuar > 0 ? `x<sup>${pLuar}</sup>` : ""} · (u)<sup>${n}</sup> · </div>
             <div style="text-align: center;">
@@ -137,11 +139,11 @@ function prosesIntegralLanjutan() {
             </div>
         </div>
         ${pLuar > 0 ? `
-        <p style="font-size: 15px; color: #4a5568; font-style: italic; background: #fffaf0; border-left: 4px solid #dd6b20; padding: 8px; margin: 10px 0;">
-            *Proses Eliminasi: Variabel <b>x<sup>${pLuar}</sup></b> pada bagian pembilang di luar kurung membagi habis variabel <b>x<sup>${pangkatDu}</sup></b> pada bagian penyebut, sehingga variabel x hilang sepenuhnya dari integral.
+        <p style="font-size: 15px; color: #4a5568; font-style: italic; background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px; margin: 12px 0; border-radius: 0 4px 4px 0;">
+            <b>Proses Eliminasi:</b> Variabel pembilang <b>x<sup>${pLuar}</sup></b> di luar kurung membagi habis variabel penyebut <b>x<sup>${pangkatDu}</sup></b> dari nilai dx, sehingga variabel x tereliminasi sepenuhnya.
         </p>
         ` : ""}
-        <p>Keluarkan konstanta angka ke depan tanda integral (<b>∫</b>):</p>
+        <p>Keluarkan konstanta angka pecahan yang tersisa ke depan tanda integral (<b>∫</b>):</p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; margin: 15px 0;">
             <div>= ∫ </div>
             <div style="text-align: center; display: inline-block; vertical-align: middle;">
@@ -154,8 +156,8 @@ function prosesIntegralLanjutan() {
             <div> ∫ u<sup>${n}</sup> du</div>
         </div>
         
-        <p><strong>Langkah 4: Integralkan Variabel u menggunakan Aturan Pangkat</strong></p>
-        <p>Gunakan rumus dasar integral aljabar $$\\int u^n du = \\frac{1}{n+1} u^{n+1}$$ :</p>
+        <p><strong>Langkah 4: Integralkan Nilai u Menggunakan Aturan Pangkat (n + 1)</strong></p>
+        <p>Gunakan rumus dasar integral aljabar untuk menaikkan pangkat variabel <b>u</b>:</p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 15px 0;">
             <div>= </div>
             ${kePecahanTeks(k, koefDu)}
@@ -173,7 +175,7 @@ function prosesIntegralLanjutan() {
             ${kePecahanTeks(1, pangkatBaru)}
             <div> · u<sup>${pangkatBaru}</sup> + C</div>
         </div>
-        <p>Kalikan kedua nilai pecahan pembilang dengan pembilang, serta penyebut dengan penyebut:</p>
+        <p>Kalikan pembilang dengan pembilang, serta penyebut dengan penyebut:</p>
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; margin: 15px 0;">
             <div>= </div>
             <div style="text-align: center; display: inline-block; vertical-align: middle;">
@@ -187,8 +189,8 @@ function prosesIntegralLanjutan() {
         </div>
         
         <p><strong>Langkah 5: Kembalikan Nilai u Menjadi Fungsi x Semula</strong></p>
-        <p>Substitusikan kembali nilai pemisalan <b>u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}</b> untuk mendapatkan jawaban akhir:</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; margin: 20px 0; color: #2b6cb0; font-weight: bold;">
+        <p>Substitusikan balik nilai pemisalan awal <b>u = ${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB}</b> untuk memperoleh jawaban akhir:</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; margin: 25px 0; color: #2b6cb0; font-weight: bold; border: 2px dashed #2b6cb0; padding: 10px; border-radius: 8px; background-color: #ebf8ff;">
             <div>Hasil Akhir = </div>
             ${kePecahanTeks(k, penyebutBawah)}
             <div>(${a !== 1 ? a : ""}x<sup>${pDalam}</sup> ${tandaB})<sup>${pangkatBaru}</sup> + C</div>
