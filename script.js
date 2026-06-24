@@ -1,5 +1,4 @@
 function hitungIntegral() {
-    // Mengambil nilai input
     const a = parseFloat(document.getElementById('input-a').value);
     const b = parseFloat(document.getElementById('input-b').value);
     const n = parseFloat(document.getElementById('input-n').value);
@@ -16,13 +15,11 @@ function hitungIntegral() {
 
     const resultBox = document.getElementById('result-box');
     const langkahDiv = document.getElementById('langkah-langkah');
+    const btnCopy = document.getElementById('btn-copy');
     
-    // Tanda tambah atau kurang untuk visualisasi b
     const tandaB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
     const pangkatBaru = n + 1;
-    const koefisienDepan = (1 / (a * pangkatBaru)).toFixed(4); // dibulatkan 4 angka belakang koma jika desimal
     
-    // Menyusun teks langkah-langkah menggunakan format MathJax (LaTeX)
     let htmlLangkah = `
         <p><strong>Soal:</strong> Tentukan $\\int (${a}x ${tandaB})^{${n}} \\, dx$</p>
         <hr>
@@ -43,10 +40,19 @@ function hitungIntegral() {
         <p>$$\\text{Hasil Akhir} = \\frac{1}{${a * pangkatBaru}} (${a}x ${tandaB})^{${pangkatBaru}} + C$$</p>
     `;
     
-    // Masukkan ke HTML
     langkahDiv.innerHTML = htmlLangkah;
     resultBox.style.display = 'block';
+    btnCopy.style.display = 'block'; // Memunculkan tombol salin
     
-    // Memicu MathJax untuk me-render ulang rumus matematika baru
     MathJax.typeset();
+}
+
+function salinTeks() {
+    const zonatemu = document.getElementById('langkah-langkah').innerText;
+    
+    navigator.clipboard.writeText(zonatemu).then(() => {
+        alert("Langkah penyelesaian berhasil disalin ke clipboard!");
+    }).catch(err => {
+        alert("Gagal menyalin teks: ", err);
+    });
 }
